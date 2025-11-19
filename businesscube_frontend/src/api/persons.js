@@ -1,13 +1,12 @@
 import axios from "axios";
 
-const API = "http://astraval.com:8085/api/persons";
+const baseURL = import.meta.env.VITE_API_URL.endsWith("/")
+  ? import.meta.env.VITE_API_URL + "api/persons"
+  : import.meta.env.VITE_API_URL + "/api/persons";
 
-export const getAllPersons = () => axios.get(API);
+const API = axios.create({ baseURL });
 
-export const createPerson = (data) => axios.post(API + "/create", data);
-
-export const updatePerson = (id, data) =>
-  axios.put(API + `/update/${id}`, data);
-
-export const deletePersonById = (id) =>
-  axios.delete(API + `/delete/${id}`);
+export const getAllPersons = () => API.get(""); // fetch all persons
+export const createPerson = (data) => API.post("/create", data);
+export const updatePerson = (id, data) => API.put(`/update/${id}`, data);
+export const deletePersonById = (id) => API.delete(`/delete/${id}`);

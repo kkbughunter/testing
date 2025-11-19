@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -20,9 +22,13 @@ public class PersonService {
     @Value("${upload.path}")
     private String uploadPath;
 
-    private void ensureUploadDir() {
-        File dir = new File(uploadPath);
-        if (!dir.exists()) dir.mkdirs();
+    // Returns absolute path and creates folder if it doesn't exist
+    private Path getUploadDir() throws IOException {
+        Path uploadDir = Paths.get(System.getProperty("user.dir")).resolve(uploadPath);
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+        return uploadDir;
     }
 
     private String saveFile(MultipartFile file) throws IOException {
@@ -30,17 +36,21 @@ public class PersonService {
         if (file.getSize() > 10L * 1024 * 1024) {
             throw new RuntimeException("File too large. Max allowed is 10MB.");
         }
-        ensureUploadDir();
-        String fn = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        File target = new File(uploadPath, fn);
-        file.transferTo(target);
-        return "/uploads/" + fn;
+
+        Path uploadDir = getUploadDir();
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path target = uploadDir.resolve(filename);
+        file.transferTo(target.toFile());
+
+        return "/uploads/" + filename;
     }
 
-    private void deleteFile(String imageUrl) {
+    private void deleteFile(String imageUrl) throws IOException {
         if (imageUrl == null) return;
-        File f = new File(uploadPath, imageUrl.replace("/uploads/", ""));
-        if (f.exists()) f.delete();
+
+        Path uploadDir = getUploadDir();
+        Path filePath = uploadDir.resolve(imageUrl.replace("/uploads/", ""));
+        Files.deleteIfExists(filePath);
     }
 
     public Map<String, Object> create(String name, Integer age, MultipartFile image) throws SQLException, IOException {
@@ -74,7 +84,7 @@ public class PersonService {
         return res;
     }
 
-    public String delete(Long id) throws SQLException {
+    public String delete(Long id) throws SQLException, IOException {
         String old = repo.findImageUrlById(id);
         repo.delete(id);
         if (old != null) deleteFile(old);

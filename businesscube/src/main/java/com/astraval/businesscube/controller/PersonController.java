@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/persons")
-@CrossOrigin(origins = "*")
 public class PersonController {
 
     @Autowired
@@ -43,7 +42,8 @@ public class PersonController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deletePerson(@PathVariable Long id) throws SQLException {
+    public String deletePerson(@PathVariable Long id) throws SQLException, IOException {
         return personService.delete(id);
     }
+
 }

@@ -1,19 +1,7 @@
-server:
-  port: 8085
-
 spring:
-  datasource:
-    url: jdbc:postgresql://astraval.com:8085/learning
-    username: postgres
-    password: root@IET25
-    driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-
-upload:
-  path: /home/pc1/Documents/workspace/BC/businesscube/uploads/

@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/learning
+    username: rahul63794
+    password: astraval25
+    driver-class-name: org.postgresql.Driver
+
+upload:
+  path: uploads
+
+frontend:
+  url: http://localhost:3000
